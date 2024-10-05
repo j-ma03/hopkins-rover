@@ -91,18 +91,18 @@ while(cam.isOpened()):
             for rvec, tvec in zip(rotation_vectors, translation_vectors):
                 # Calculate distance between marker and rover
                 distance = np.linalg.norm(tvec)
-                rover_height = 1.0  # Example height of the rover above the ground (in meters)
-                distance_to_rover = distance - rover_height
+                # rover_height = 1.0  # Example height of the rover above the ground (in meters)
+                # distance_to_rover = distance - rover_height
 
                 # Print or use distance_to_rover as needed
-                print("Distance to rover(cm): ", distance_to_rover * 2);
+                print("Distance to rover(cm): ", distance * 2)
 
                 if len(sys.argv) == 2 and sys:
                     pass
 
 #make sure it is measuring in meters
                 # need to calibrate the camera 
-                # specifiy how many units we aere working with 
+                # specifiy how many units we are working with 
                 # measure the length of one square
                 # calibration determines the units
                 # distasnce times the length of a square 
