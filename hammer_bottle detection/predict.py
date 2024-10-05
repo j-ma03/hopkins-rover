@@ -1,17 +1,21 @@
 from ultralytics import YOLO
 import matplotlib.pyplot as plt
 import cv2
+import supervision as sv
+
 
 imgPath = "/Users/noahm/Documents/MalletDetection/MalletDetection/orange hammer training/IMG_0432.jpg"
 
-modelPath = "/Users/noahm/Documents/MalletDetection/MalletDetection/Mallet/runs/detect/yolov8s_mallet116/weights/best.pt"
+modelPath = "/Users/jaydenma/Documents/mars rover/hopkins-rover/hammer_bottle detection/best.pt"
 
 model = YOLO(modelPath)
 
-results = model.predict(imgPath)
+results = model.predict(source=0)
 
-img = cv2.imread(imgPath)
+img = cv2.imread(source=0)
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+
 
 
 for result in results:
