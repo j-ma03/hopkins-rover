@@ -7,12 +7,15 @@ treat communicating with each other through CAN
 
 from enum import Enum
 from dataclasses import dataclass
+import math
+from typing import List, Dict
+import json
 
 """
 These are the arbitration ids for determining what CAN packet has what data
 and establishes the priorities of each packet
 """
-class ARBITRATION_IDS(Enum):
+class ARBITRATION_ID(Enum):
     # for jetson computer general comms (may not be used)
     JETSON = 1
 
@@ -21,7 +24,7 @@ class ARBITRATION_IDS(Enum):
     RPI_1 = 3
 
     # for sensor data (could represent multiple sensors)
-    # may not need this many
+    # may not need this many and should probably change names to be more descriptive
     SENSOR_PKT_0 = 4
     SENSOR_PKT_1 = 5
     SENSOR_PKT_2 = 6
@@ -41,25 +44,91 @@ class ARBITRATION_IDS(Enum):
     ARM_MOTOR_2 = 16
     ARM_MOTOR_3 = 17
     ARM_MOTOR_4 = 18
+    ARM_MOTOR_5 = 19
 
 
 # defines some value in the data bits
 @dataclass
-class FormatItem:
+class Sensor:
     id: str
     start_bit: int
     length: int
     parsed_data: int = None
+    send_data: int = None
 
     # gets data based on bits the item exists in
     def get_data_from_bits(self, bits: int) -> int:
-        #
+        # kinda a jeink way to generate the bitmask but apparently it's faster for 20+ bits
         self.parsed_data = (bits >> self.start_bit) & int("1" * self.length, base=2)
         return self.parsed_data
 
-# do we want to include a function that simplifies the can library or is this nearly enough?
+    def add_data_to_bits(self, bits: int, data: int) -> int:
+        return bits | data << self.start_bit
 
-if __name__ == "__main__":
-    # some testing stuff, will be removed
-    item = FormatItem("some value", 10, 10)
-    print(item.get_data_from_bits(0b0010011001001001))
+
+@dataclass
+class Sensor_Packet():
+    arbitration_id: ARBITRATION_ID
+    sensors: Dict[str, Sensor]
+    size: int
+
+
+class Computer():
+    def __init__(self, computer_id: str):
+        self.computer_id = computer_id
+        self.config = json.load(open("CAN_config.json", "r"))
+        self.sensor_packets: Dict[int, Sensor_Packet] = {}
+
+        for sensor_pkt in self.config["computers"][self.computer_id]:
+            data = self.config["sensor_packets"][sensor_pkt]
+            self.sensor_packets[ARBITRATION_ID[sensor_pkt].value] = Sensor_Packet(
+                arbitration_id=ARBITRATION_ID[sensor_pkt],
+                sensors={sensor: Sensor(
+                    id=sensor,
+                    start_bit=sensor_data["start_bit"],
+                    length=sensor_data["length"]
+                ) for sensor, sensor_data in data["sensors"].items()},
+                size=data["size_of_packet"]
+            )
+
+    def populate_bits(self, AF_id: ARBITRATION_ID, sensor_name: str, bits: int, value: int) -> int:
+
+        pkt = self.sensor_packets.get(AF_id.value)
+        if pkt is None:
+            raise KeyError(f"The config for this computer doesn't contain arbitration id: {AF_id}")
+
+        sensor = pkt.sensors.get(sensor_name)
+        if sensor is None:
+            raise KeyError(f"The config for this computer doesn't contain sensor name: {sensor_name}")
+
+        return sensor.add_data_to_bits(bits, value)
+
+    def read_bits(self, AF_id: ARBITRATION_ID, sensor_name: str, bits: int) -> int:
+        pkt = self.sensor_packets.get(AF_id.value)
+        if pkt is None:
+            raise KeyError(f"The config for this computer doesn't contain arbitration id: {AF_id}")
+
+        sensor = pkt.sensors.get(sensor_name)
+        if sensor is None:
+            raise KeyError(f"The config for this computer doesn't contain sensor name: {sensor_name}")
+
+        return sensor.get_data_from_bits(bits)
+
+    def get_length(self, AF_id: ARBITRATION_ID):
+        pkt = self.sensor_packets.get(AF_id.value)
+        if pkt is None:
+            raise KeyError(f"The config for this computer doesn't contain arbitration id: {AF_id}")
+
+        return pkt.size
+
+    """
+    this bypasses integer overflow problems by just storing int as groups of 8 bits
+    """
+    def get_bytearray(self, AF_id: ARBITRATION_ID, bits: int) -> bytearray:
+        bytes_in_bits: List[int] = []
+        for byte in range(math.ceil(self.get_length(AF_id) / 8)):
+            # get first 8 bits and shift the data to remove them
+            bytes_in_bits.insert(0, bits & 0xFF)
+            bits = bits >> 8
+
+        return bytearray(bytes_in_bits)
