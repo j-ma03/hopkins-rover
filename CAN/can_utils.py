@@ -11,6 +11,10 @@ import math
 from typing import List, Dict
 import json
 
+from can import Message
+
+from CAN.test_server import can_pkt
+
 """
 These are the arbitration ids for determining what CAN packet has what data
 and establishes the priorities of each packet
@@ -72,7 +76,8 @@ class Sensor_Packet():
     sensors: Dict[str, Sensor]
     size: int
 
-
+# get arb id should also use value
+# function to get data just given message
 class Computer():
     def __init__(self, computer_id: str):
         self.computer_id = computer_id
@@ -132,3 +137,22 @@ class Computer():
             bits = bits >> 8
 
         return bytearray(bytes_in_bits)
+
+    def get_filters(self) -> List[Dict[str, int]]:
+        return [{"can_id": i, "extended": False} for i in self.sensor_packets.keys()]
+
+    def process_message(self, message: Message) -> Dict:
+        arbitration_id: ARBITRATION_ID = ARBITRATION_ID(message.arbitration_id)
+
+        recv_data: int = int.from_bytes(message.data, byteorder="big")
+        return_data = {"arbitration_id": arbitration_id, "sensors": {}}
+
+        for sensor in self.sensor_packets[arbitration_id.value].sensors.keys():
+            return_data["sensors"][sensor] = self.read_bits(arbitration_id, sensor, recv_data)
+
+        return return_data
+
+
+# rtr bit stuff
+
+    
