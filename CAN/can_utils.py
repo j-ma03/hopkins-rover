@@ -117,7 +117,7 @@ class Computer():
 
         return sensor.get_data_from_bits(bits)
 
-    def get_length(self, AF_id: ARBITRATION_ID):
+    def get_length(self, AF_id: ARBITRATION_ID) -> int:
         pkt = self.sensor_packets.get(AF_id.value)
         if pkt is None:
             raise KeyError(f"The config for this computer doesn't contain arbitration id: {AF_id}")
@@ -139,7 +139,13 @@ class Computer():
     def get_filters(self) -> List[Dict[str, int]]:
         return [{"can_id": i, "can_mask": 0x7FF, "extended": False} for i in self.sensor_packets.keys()]
 
-    def send_message(self, can_bus: can.interface.Bus, AF_id: ARBITRATION_ID, **kwargs):
+    """
+    params:
+    - the declared can.interface.Bus object
+    - arbitration id for the packet you want to send
+    - the sensors for the packet you want to send
+    """
+    def send_message(self, can_bus: can.interface.Bus, AF_id: ARBITRATION_ID, **kwargs) -> None:
         bits = 0
         for name, value in kwargs.items():
             sensor = self.sensor_packets[AF_id.value].sensors.get(name)
@@ -150,7 +156,7 @@ class Computer():
 
         can_bus.send(can.Message(arbitration_id=AF_id.value, data=self.get_bytearray(AF_id, bits)))
 
-    def process_message(self, message: can.Message) -> Dict:
+    def process_message(self, message: can.Message) -> None:
         arbitration_id: ARBITRATION_ID = ARBITRATION_ID(message.arbitration_id)
 
         recv_data: int = int.from_bytes(message.data, byteorder="big")
