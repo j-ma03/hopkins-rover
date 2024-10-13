@@ -46,7 +46,7 @@ Consider a 16 bit data section
 If we want to dedicate the first byte to sensor **k** and the second byte to sensor **j**.
 
 Let **k** = `247` or `11110111` in binary, and **j** = `132` or `10000100` in binary.
-When we set the first byte to **k** and the second byte to **j** we get:
+When we set the LSB byte to **k** and the second byte to **j** we get:
 
 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | <- **j** | **k** -> | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |---|---|---|---|---|---|---|---|----------|----------|---|----|----|----|---|----|----|---|
@@ -97,24 +97,32 @@ The max size is 64 bits I'm decently sure.
 
 ### Example
 
+#### Sending Data
 ```python
 import can # not used here but you will need to import it at some point
 from CAN.can_utils import ARBITRATION_ID, Computer
 
+bus = can.interface.Bus("can0", interface='socketcan', bitrate=1e9)
 # initialization of this computer
 can_pkt = Computer("rpi0")
 
 # Sending
-bits = 0
-bits = can_pkt.populate_bits(ARBITRATION_ID.SENSOR_PKT_0, "sensor 1", bits, 3491)
-bits = can_pkt.populate_bits(ARBITRATION_ID.SENSOR_PKT_0, "sensor 2", bits, 25592)
+can_pkt.send_message(bus, ARBITRATION_ID.SENSOR_PKT_0, sensor1=3239, sensor2=23222)
+```
 
-message = can_pkt.get_bytearray(ARBITRATION_ID.SENSOR_PKT_0, bits)
-# send data with can bus (read docs)
+#### Receiving Data
+```python
+from CAN.can_utils import Computer
+import can
+import time
 
-# Receiving
-# read incoming bytestring from message (read docs)
-incoming_bits = int.from_bytes(message, "big")
-sensor1_reading = can_pkt.read_bits(ARBITRATION_ID.SENSOR_PKT_0, "sensor 1", incoming_bits) # 3491
-sensor2_reading = can_pkt.read_bits(ARBITRATION_ID.SENSOR_PKT_0, "sensor 2", incoming_bits) # 25592
+can_pkt = Computer("rpi0")
+bus = can.interface.Bus('can0', interface='socketcan', bitrate=1000000, filters=can_pkt.get_filters())
+
+# set the notifier to call process message when we get data
+can.Notifier(bus, [can_pkt.process_message])
+
+while True:
+    # keeping program running
+    time.sleep(1)
 ```
