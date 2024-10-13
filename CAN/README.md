@@ -80,11 +80,11 @@ The max size is 64 bits I'm decently sure.
   "sensor_packets": {
     "SENSOR_PKT_0": {
       "sensors": { // sensors that are in the packet
-        "sensor 1": {
+        "sensor1": {
           "start_bit": 20, // where to start the bits of this sensor with lsb being bit 0
           "length": 12 // how many bits to dedicate to this sensor value
         },
-        "sensor 2": {
+        "sensor2": {
           "start_bit": 0,
           "length": 20
         }
