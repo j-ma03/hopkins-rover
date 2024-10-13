@@ -1,0 +1,42 @@
+{
+  "computers": {
+    "jetson": [
+
+    ],
+    "rpi0": [
+      "SENSOR_PKT_0",
+      "SENSOR_PKT_1"
+    ],
+    "rpi1": [
+
+    ]
+  },
+  "sensor_packets": {
+    "SENSOR_PKT_0": {
+      "sensors": {
+        "sensor1": {
+          "start_bit": 20,
+          "length": 12
+        },
+        "sensor2": {
+          "start_bit": 0,
+          "length": 20
+        }
+      },
+      "size_of_packet": 32
+    },
+    "SENSOR_PKT_1": {
+      "sensors": {
+        "sensor3": {
+          "start_bit": 45,
+          "length": 12
+        },
+        "sensor4": {
+          "start_bit": 45,
+          "length": 19
+        }
+      },
+      "size_of_packet": 64
+    }
+  }
+}
