@@ -11,9 +11,7 @@ import math
 from typing import List, Dict
 import json
 
-from can import Message
-
-from CAN.test_server import can_pkt
+import can
 
 """
 These are the arbitration ids for determining what CAN packet has what data
@@ -139,9 +137,20 @@ class Computer():
         return bytearray(bytes_in_bits)
 
     def get_filters(self) -> List[Dict[str, int]]:
-        return [{"can_id": i, "extended": False} for i in self.sensor_packets.keys()]
+        return [{"can_id": i, "can_mask": 0x7FF, "extended": False} for i in self.sensor_packets.keys()]
 
-    def process_message(self, message: Message) -> Dict:
+    def send_message(self, can_bus: can.interface.Bus, AF_id: ARBITRATION_ID, **kwargs):
+        bits = 0
+        for name, value in kwargs.items():
+            sensor = self.sensor_packets[AF_id.value].sensors.get(name)
+            if sensor is None:
+                raise KeyError(f"The config for this computer doesn't contain sensor name: {name}")
+
+            bits += sensor.add_data_to_bits(bits, value)
+
+        can_bus.send(can.Message(arbitration_id=AF_id.value, data=self.get_bytearray(AF_id, bits)))
+
+    def process_message(self, message: can.Message) -> Dict:
         arbitration_id: ARBITRATION_ID = ARBITRATION_ID(message.arbitration_id)
 
         recv_data: int = int.from_bytes(message.data, byteorder="big")
@@ -150,9 +159,5 @@ class Computer():
         for sensor in self.sensor_packets[arbitration_id.value].sensors.keys():
             return_data["sensors"][sensor] = self.read_bits(arbitration_id, sensor, recv_data)
 
-        return return_data
-
-
-# rtr bit stuff
-
-    
+        # we only use this function for jetson and I haven't decided how to implement that yet
+        print(return_data)

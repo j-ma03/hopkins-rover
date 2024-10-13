@@ -14,11 +14,11 @@
   "sensor_packets": {
     "SENSOR_PKT_0": {
       "sensors": {
-        "sensor 1": {
+        "sensor1": {
           "start_bit": 20,
           "length": 12
         },
-        "sensor 2": {
+        "sensor2": {
           "start_bit": 0,
           "length": 20
         }
@@ -27,11 +27,11 @@
     },
     "SENSOR_PKT_1": {
       "sensors": {
-        "sensor 3": {
+        "sensor3": {
           "start_bit": 45,
           "length": 12
         },
-        "sensor 4": {
+        "sensor4": {
           "start_bit": 45,
           "length": 19
         }
