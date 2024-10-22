@@ -79,7 +79,7 @@ class Sensor_Packet():
 class Computer():
     def __init__(self, computer_id: str):
         self.computer_id = computer_id
-        self.config = json.load(open("CAN_config.json", "r"))
+        self.config = json.load(open("config.json", "r"))["CAN"]
         self.sensor_packets: Dict[int, Sensor_Packet] = {}
 
         for sensor_pkt in self.config["computers"][self.computer_id]:
