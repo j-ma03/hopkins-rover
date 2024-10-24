@@ -1,0 +1,7 @@
+easydict==1.13
+gpiozero==2.0.1
+imusensor==1.0.1
+numpy==2.1.1
+pygame==2.6.1
+pynput==1.7.7
+smbus2==0.4.3
