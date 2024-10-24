@@ -95,7 +95,7 @@ while(cam.isOpened()):
                 # distance_to_rover = distance - rover_height
 
                 # Print or use distance_to_rover as needed
-                print("Distance to rover(cm): ", distance * 2)
+                print("Distance to rover(cm): ", distance * 4)
 
                 if len(sys.argv) == 2 and sys:
                     pass
