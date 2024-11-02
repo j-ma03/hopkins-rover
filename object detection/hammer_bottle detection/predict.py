@@ -4,15 +4,15 @@ import cv2
 import supervision as sv
 
 
-imgPath = "/Users/noahm/Documents/MalletDetection/MalletDetection/orange hammer training/IMG_0432.jpg"
+imgPath = "/Users/jaydenma/Documents/mars rover/hopkins-rover/hammer_bottle detection/training images outside malone/IMG_2878.JPG"
 
 modelPath = "/Users/jaydenma/Documents/mars rover/hopkins-rover/hammer_bottle detection/best.pt"
 
-model = YOLO(modelPath)
+model = YOLO("best.pt")
 
-results = model.predict(source=0)
+results = model(imgPath)
 
-img = cv2.imread(source=0)
+img = cv2.imread(source=imgPath, filename=None)
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 
