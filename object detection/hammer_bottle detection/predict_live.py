@@ -2,7 +2,7 @@ import cv2
 import matplotlib.pyplot as plt
 from ultralytics import YOLO # Assuming you have a YOLO class in yolov5 module
 
-modelPath = '/Users/jaydenma/Documents/mars rover/hopkins-rover/hammer_bottle detection/best_bw.pt'  # Replace with your model path
+modelPath = '/Users/jaydenma/Documents/mars rover/hopkins-rover/object detection/hammer_bottle detection/best.pt'  # Replace with your model path
 model = YOLO(modelPath)
 
 # Initialize the camera feed
