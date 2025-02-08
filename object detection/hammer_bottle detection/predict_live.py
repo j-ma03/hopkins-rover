@@ -69,6 +69,8 @@ class YOLOLivePredictor:
             width = x2 - x1
             height = y2 - y1
             return width * height
+        else:
+            return 0
         
 
     def displayBox(self, frame, box):
