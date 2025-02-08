@@ -1,5 +1,5 @@
 import cv2
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from ultralytics import YOLO # Assuming you have a YOLO class in yolov5 module
 
 
@@ -81,15 +81,3 @@ class YOLOLivePredictor:
         cv2.destroyAllWindows()
 
 # Example usage
-if __name__ == "__main__":
-    model_path = 'best.pt'  # Replace with your model path
-    predictor = YOLOLivePredictor(model_path)
-    
-    while True:
-        # ret, frame = predictor.cap.read()
-        frame = predictor.getFrame()
-        cv2.imshow('YOLO Live Feed', frame)
-        result = predictor.get_highest_confidence_bounding_box_area(frame)
-        print('Area:', result)
-        
-
