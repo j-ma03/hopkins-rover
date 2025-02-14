@@ -1,12 +1,11 @@
 import cv2
-
 import cv2.aruco as aruco
 
 class ArucoTagDetector:
     def __init__(self, camera_index=0):
         self.cap = cv2.VideoCapture(camera_index)
-        self.aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
-        self.parameters = aruco.DetectorParameters_create()
+        self.aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_6X6_250)
+        self.parameters = aruco.DetectorParameters()
 
     def get_aruco_tag_number(self):
         while True:
@@ -16,7 +15,8 @@ class ArucoTagDetector:
                 break
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, self.aruco_dict, parameters=self.parameters)
+            detector = aruco.ArucoDetector(self.aruco_dict, self.parameters)
+            corners, ids, rejectedImgPoints = detector.detectMarkers(gray)
 
             if ids is not None:
                 for i in range(len(ids)):
