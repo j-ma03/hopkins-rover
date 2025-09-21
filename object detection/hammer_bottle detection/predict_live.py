@@ -49,7 +49,7 @@ class YOLOLivePredictor:
 
 
 
-    def get_highest_confidence_bounding_box_area(self, frame):
+    def get_highest_confidence_bounding_box(self, frame):
         highest_confidence = 0
         best_box = None
 
@@ -64,13 +64,15 @@ class YOLOLivePredictor:
                     highest_confidence = confidence
                     best_box = box
 
-        if best_box is not None:
-            x1, y1, x2, y2 = map(int, best_box.xyxy[0])
-            width = x2 - x1
-            height = y2 - y1
-            return width * height
-        else:
-            return 0
+        if(best_box == None):
+            return -1, -1, -1, -1
+        return best_box.xyxy[0]
+        
+    def get_box_center_point(self, box):
+        x1, y1, x2, y2 = map(int, box)
+
+        return ((x1 + x2) / 2)
+
         
 
     def displayBox(self, frame, box):
